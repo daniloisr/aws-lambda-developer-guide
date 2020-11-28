@@ -14,6 +14,6 @@
   "framework" : "netcoreapp3.1",
   "function-runtime":"dotnetcore3.1",
   "function-memory-size" : 512,
-  "function-timeout" : 30,
-  "function-handler" : "blank-csharp::blankCsharp.Function::FunctionHandler2"
+  "function-timeout" : 90,
+  "function-handler" : "blank-csharp::blankCsharp.Function::FunctionHandler"
 }

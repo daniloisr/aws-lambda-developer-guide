@@ -10,7 +10,7 @@ Resources:
       CodeUri: src/blank-csharp/bin/Release/netcoreapp3.1/blank-csharp.zip
       Description: Call the AWS Lambda API
       MemorySize: 256
-      Timeout: 9
+      Timeout: 90
       # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole

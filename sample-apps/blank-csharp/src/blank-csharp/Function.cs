@@ -10,8 +10,6 @@ using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Newtonsoft.Json;
 using Amazon.S3.Model;
 
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-
 namespace blankCsharp
 {
   class Function
@@ -41,10 +39,9 @@ namespace blankCsharp
       return true;
     }
 
-    public async Task<string> FunctionHandler(string input, ILambdaContext context)
+    public async Task FunctionHandler()
     {
       await Upload();
-      return "works?";
     }
 
     public static async Task Main(string[] args)
