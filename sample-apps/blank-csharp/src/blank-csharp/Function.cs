@@ -1,59 +1,56 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Amazon;
-using Amazon.Util;
+using System;
 using Amazon.Lambda;
+using Amazon.S3;
+using Amazon.S3.Transfer;
 using Amazon.Lambda.Model;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Amazon.S3.Model;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
 namespace blankCsharp
 {
-  public class Function
+  class Function
   {
-    private static AmazonLambdaClient lambdaClient;
-
     static Function() {
       initialize();
     }
 
-    static async void initialize() {
-      AWSSDKHandler.RegisterXRayForAllServices();
-      lambdaClient = new AmazonLambdaClient();
-      await callLambda();
+    static void initialize() {
+      // AWSSDKHandler.RegisterXRayForAllServices();
     }
 
-    public async Task<AccountUsage> FunctionHandler(SQSEvent invocationEvent, ILambdaContext context)
+    public async static Task<bool> Upload()
     {
-      GetAccountSettingsResponse accountSettings;
-      try
+      IronPdf.Installation.TempFolderPath = @"/tmp";
+      IronPdf.HtmlToPdf Renderer = new IronPdf.HtmlToPdf();
+      var PDF = Renderer.RenderHtmlAsPdf("<h1>Hello from DocThread</h1>");
+      PDF.SaveAs("/tmp/sample.pdf");
+
+      using (var client = new AmazonS3Client(Amazon.RegionEndpoint.SAEast1))
       {
-        accountSettings = await callLambda();
+        var fileTransferUtility = new TransferUtility(client);
+        await fileTransferUtility.UploadAsync("/tmp/sample.pdf" , "lambda-test-8127");
+        Console.WriteLine("Upload 1 completed");
       }
-      catch (AmazonLambdaException ex)
-      {
-        throw ex;
-      }
-      AccountUsage accountUsage = accountSettings.AccountUsage;
-      LambdaLogger.Log("ENVIRONMENT VARIABLES: " + JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables()));
-      LambdaLogger.Log("CONTEXT: " + JsonConvert.SerializeObject(context));
-      LambdaLogger.Log("EVENT: " + JsonConvert.SerializeObject(invocationEvent));
-      return accountUsage;
+
+      return true;
     }
 
-    public static async Task<GetAccountSettingsResponse> callLambda()
+    public async Task<string> FunctionHandler(string input, ILambdaContext context)
     {
-      var request = new GetAccountSettingsRequest();
-      var response = await lambdaClient.GetAccountSettingsAsync(request);
-      return response;
+      await Upload();
+      return "works?";
+    }
+
+    public static async Task Main(string[] args)
+    {
+      await Upload();
+      Console.WriteLine("fu?");
     }
   }
 }
